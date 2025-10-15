@@ -6,7 +6,22 @@ Herramienta automatizada para extraer la lista completa de medicamentos registra
 
 Este scraper automatiza la búsqueda y extracción de medicamentos desde el sitio oficial de consulta pública de ANMAT (https://servicios.pami.org.ar/vademecum/views/consultaPublica/listado.zul).
 
-Dado que la página requiere un mínimo de 3 caracteres en el campo de búsqueda por nombre comercial, el script genera y prueba todas las combinaciones posibles de 3 letras (AAA, AAB, AAC, ..., ZZX, ZZY, ZZZ) para obtener una cobertura completa.
+## Versiones Disponibles
+
+Este proyecto incluye **dos versiones** del scraper, cada una con una estrategia diferente:
+
+### Versión 1: Búsqueda por Combinaciones (`anmat_scraper.py`)
+- Genera todas las combinaciones posibles de 3 letras (AAA-ZZZ)
+- Total de 17,576 búsquedas
+- Ideal para asegurar cobertura completa
+- Tiempo estimado: ~10 horas
+
+### Versión 2: Búsqueda por Laboratorio (`anmat_scraper_v2.py`) **[RECOMENDADO]**
+- Busca medicamentos agrupados por laboratorio
+- Utiliza la lista completa de laboratorios registrados
+- Más eficiente y rápido
+- Evita duplicados
+- Incluye archivo `LaboratoriosANMAT.txt` con la lista de laboratorios
 
 ## Características
 
@@ -57,18 +72,41 @@ pip install -r requirements.txt
 
 ## Uso
 
-### Uso Básico
+### Opción 1: Scraper por Laboratorio (Recomendado)
 
-Para ejecutar el scraper completo (todas las combinaciones):
+**Uso básico:**
+```bash
+python anmat_scraper_v2.py
+```
 
+**Configuración:**
+```python
+scraper = ANMATScraperV2(
+    laboratorios_file='LaboratoriosANMAT.txt',  # Archivo con lista de laboratorios
+    output_file='medicamentos_anmat_completo.csv',  # Archivo de salida
+    headless=False,  # True para ejecutar sin ventana visible
+    delay=2  # Segundos de espera entre solicitudes
+)
+```
+
+**Modo de prueba (primeros 5 laboratorios):**
+```python
+scraper.run(max_labs=5)
+```
+
+**Reanudar desde un laboratorio específico:**
+```python
+scraper.run(start_from='BAYER SOCIEDAD ANONIMA')
+```
+
+### Opción 2: Scraper por Combinaciones
+
+**Uso básico:**
 ```bash
 python anmat_scraper.py
 ```
 
-### Configuración en el código
-
-Editar las siguientes variables en `anmat_scraper.py`:
-
+**Configuración:**
 ```python
 scraper = ANMATScraper(
     output_file='medicamentos_anmat.csv',  # Nombre del archivo de salida
@@ -77,32 +115,22 @@ scraper = ANMATScraper(
 )
 ```
 
-### Modo de prueba (búsquedas limitadas)
-
-Para probar con un número limitado de búsquedas:
-
+**Modo de prueba (búsquedas limitadas):**
 ```python
 scraper.run(max_searches=10)  # Solo las primeras 10 combinaciones
 ```
 
-### Reanudar desde un punto específico
-
-Si el proceso se interrumpe, puedes reanudarlo desde donde quedó:
-
+**Reanudar desde un punto específico:**
 ```python
 scraper.run(start_from='ABC')  # Reanudar desde la combinación 'ABC'
 ```
 
-### Modo headless (sin interfaz gráfica)
+### Configuración General (Ambas versiones)
 
-Para ejecutar en un servidor o en segundo plano:
-
+**Modo headless (sin interfaz gráfica):**
 ```python
-scraper = ANMATScraper(
-    output_file='medicamentos_anmat.csv',
-    headless=True,  # No abre ventana del navegador
-    delay=2
-)
+# Para ejecutar en un servidor o en segundo plano:
+headless=True  # No abre ventana del navegador
 ```
 
 ## Salida
@@ -157,10 +185,14 @@ Para sesiones muy largas, considerar dividir el scraping en bloques usando `star
 ```
 MedicamentosANMAT/
 │
-├── anmat_scraper.py          # Script principal
-├── requirements.txt          # Dependencias
-├── README.md                 # Este archivo
-└── medicamentos_anmat.csv    # Archivo de salida (generado)
+├── anmat_scraper.py                    # Scraper V1 (por combinaciones)
+├── anmat_scraper_v2.py                 # Scraper V2 (por laboratorio) [RECOMENDADO]
+├── LaboratoriosANMAT.txt               # Lista de laboratorios para V2
+├── requirements.txt                    # Dependencias Python
+├── README.md                           # Este archivo
+├── LICENSE                             # Licencia MIT
+├── .gitignore                          # Archivos excluidos de Git
+└── medicamentos_anmat_completo.csv     # Archivo de salida (generado)
 ```
 
 ## Licencia
